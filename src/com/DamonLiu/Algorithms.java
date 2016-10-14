@@ -1,7 +1,9 @@
 package com.DamonLiu;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Vector;
 
 /**
  * Created by DamonLiu on 2016/10/13.
@@ -22,20 +24,20 @@ public class Algorithms {
         return input;
     }
 
-    public static int[] shellSort(int[] unsorted) {
-        int group, i, j, temp;
-        for (group = unsorted.length / 2; group > 0; group /= 2) {
-            for (i = group; i < unsorted.length; i++) {
-                for (j = i - group; j >= 0; j -= group) {
-                    if (unsorted[j] > unsorted[j + group]) {
-                        temp = unsorted[j];
-                        unsorted[j] = unsorted[j + group];
-                        unsorted[j + group] = temp;
-                    }
+    public static int[] shellSort(int[] input) {
+        int group, i;
+        for (group = input.length / 2; group > 0; group /= 2) {//从n/2开始进行排序
+            for (i = group; i < input.length; i++) { //use insert sort.
+                int x = input[i];
+                int j = i - group;
+                while (j >= 0 && input[j] > x) {
+                    input[j + group] = input[j];
+                    j -= group;
                 }
+                input[j + group] = x;
             }
         }
-        return unsorted;
+        return input;
     }
 
     public static int[] quickSort(int n[], int left, int right) {
@@ -89,4 +91,62 @@ public class Algorithms {
         mergeSortRecursive(arr, result, 0, len - 1);
         return result;
     }
+
+
+    /**
+     * 基数排序
+     *
+     * @param
+     * @return
+     */
+    public static int[] radixSort(int[] number) {
+        int max = -1;
+        for (int i = 0; i < number.length; i++) {
+            max = number[i] > max ? number[i] : max;
+        }
+        int d = (max + "").length();
+        int k = 0;
+        int n = 1;
+        int m = 1; //控制键值排序依据在哪一位
+//        int[][] temp = new int[10][number.length]; //数组的第一维表示可能的余数0-9
+        ArrayList<Vector<Integer>> temp = new ArrayList<>(10);
+        
+        int[] order = new int[10]; //数组orderp[i]用来表示该位是i的数的个数
+        while (m <= d) {
+            for (int i = 0; i < number.length; i++) {
+                int lsd = ((number[i] / n) % 10);
+//                temp[lsd][order[lsd]] = number[i];
+                Vector<Integer> vector = temp.get(lsd);
+                vector.add(number[i]);
+                order[lsd]++;
+            }
+            for (int i = 0; i < 10; i++) {
+                if (order[i] != 0)
+                    for (int j = 0; j < order[i]; j++) {
+                        number[k] = temp.get(i).get(j);
+                        k++;
+                    }
+                order[i] = 0;
+            }
+            n *= 10;
+            k = 0;
+            m++;
+        }
+        return number;
+    }
+
+    /**
+     * 普通计数排序
+     *
+     * @param input 整数数组
+     * @return 排序结果
+     */
+    private static int[] countSort(int[] input, int upperRange) {
+        int[] result = new int[input.length];
+        int[] counter = new int[upperRange];
+
+        return input;
+    }
+
+
 }
