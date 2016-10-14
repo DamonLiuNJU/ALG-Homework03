@@ -110,7 +110,7 @@ public class Algorithms {
         int m = 1; //控制键值排序依据在哪一位
 //        int[][] temp = new int[10][number.length]; //数组的第一维表示可能的余数0-9
         ArrayList<Vector<Integer>> temp = new ArrayList<>(10);
-        
+
         int[] order = new int[10]; //数组orderp[i]用来表示该位是i的数的个数
         while (m <= d) {
             for (int i = 0; i < number.length; i++) {
