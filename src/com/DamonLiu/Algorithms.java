@@ -99,41 +99,129 @@ public class Algorithms {
      * @param
      * @return
      */
-    public static int[] radixSort(int[] number) {
-        int max = -1;
-        for (int i = 0; i < number.length; i++) {
-            max = number[i] > max ? number[i] : max;
+    public static void radixSort(int[] data, int radix, int d) {
+        // 缓存数组
+        int[] tmp = new int[data.length];
+        // buckets用于记录待排序元素的信息
+        // buckets数组定义了radix个桶
+        int[] buckets = new int[radix];
+
+        for (int i = 0, rate = 1; i < d; i++) {
+
+            // 重置count数组，开始统计下一个关键字
+            Arrays.fill(buckets, 0);
+            // 将data中的元素完全复制到tmp数组中
+            System.arraycopy(data, 0, tmp, 0, data.length);
+
+            // 计算每个待排序数据的子关键字
+            for (int j = 0; j < data.length; j++) {
+                int subKey = (tmp[j] / rate) % radix;
+                buckets[subKey]++;
+            }
+
+            for (int j = 1; j < radix; j++) {
+                buckets[j] = buckets[j] + buckets[j - 1];
+            }
+
+            // 按子关键字对指定的数据进行排序
+            for (int m = data.length - 1; m >= 0; m--) {
+                int subKey = (tmp[m] / rate) % radix;
+                data[--buckets[subKey]] = tmp[m];
+            }
+            rate *= radix;
         }
-        int d = (max + "").length();
+
+    }
+
+    /**
+     * 每8位一组，循环四次。
+     *
+     * @param data
+     * @param
+     * @param
+     */
+    public static void enhancedRadixSort(int[] data) {
+        // 缓存数组
+        int groupOfDigitsToCompare = 4;
+        int[] tmp = new int[data.length];
+        // buckets用于记录待排序元素的信息
+        // buckets数组定义了radix个桶
+        int[] buckets = new int[(int)Math.pow(2,groupOfDigitsToCompare)];
+
+        for (int i = 0; i < (32/groupOfDigitsToCompare); i++) {
+            int mask = (int)Math.pow(2,groupOfDigitsToCompare)-1;
+            // 重置count数组，开始统计下一个关键字
+            Arrays.fill(buckets, 0);
+            // 将data中的元素完全复制到tmp数组中
+            System.arraycopy(data, 0, tmp, 0, data.length);
+
+            // 计算每个待排序数据的子关键字
+            for (int j = 0; j < data.length; j++) {
+                int subKey = ((tmp[j]>>groupOfDigitsToCompare*i) & mask) % buckets.length;
+                buckets[subKey]++;
+            }
+
+            for (int j = 1; j < buckets.length; j++) {
+                buckets[j] = buckets[j] + buckets[j - 1];
+            }
+
+            // 按子关键字对指定的数据进行排序
+            for (int m = data.length - 1; m >= 0; m--) {
+                int subKey = ((tmp[m]>>groupOfDigitsToCompare*i) & mask) % buckets.length;
+                data[--buckets[subKey]] = tmp[m];
+            }
+        }
+
+    }
+
+    public static int[] radixSort_Version2(String[] input) {
+        int maxNumberLength = 32;
         int k = 0;
-        int n = 1;
+//        int n = 1;
+        int r = (int) Math.floor(Math.log10(input.length)); //以长度r分组
+        int d = (int) Math.ceil(maxNumberLength / r);        //分了d组
         int m = 1; //控制键值排序依据在哪一位
 //        int[][] temp = new int[10][number.length]; //数组的第一维表示可能的余数0-9
-        ArrayList<Vector<Integer>> temp = new ArrayList<>(10);
+        ArrayList<Vector<String>> temp = new ArrayList<>(10);
+        for (int i = 0; i < Math.pow(2, r); i++) {
+            temp.add(new Vector<>());//0
+        }
+        int[] order = new int[temp.size()]; //数组orderp[i]用来表示该位是i的数的个数
 
-        int[] order = new int[10]; //数组orderp[i]用来表示该位是i的数的个数
         while (m <= d) {
-            for (int i = 0; i < number.length; i++) {
-                int lsd = ((number[i] / n) % 10);
+            for (int i = 0; i < input.length; i++) {
+                String str = input[i];
+                int beginIndex = 32 - m * r;
+                int endIndex = beginIndex + r;
+                String tmp = str.substring(beginIndex, endIndex);
 //                temp[lsd][order[lsd]] = number[i];
-                Vector<Integer> vector = temp.get(lsd);
-                vector.add(number[i]);
+                int lsd = Integer.parseInt(tmp, 2);
+                Vector<String> vector = temp.get(lsd);
+                vector.add(input[i]);
                 order[lsd]++;
             }
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < temp.size(); i++) {
                 if (order[i] != 0)
                     for (int j = 0; j < order[i]; j++) {
-                        number[k] = temp.get(i).get(j);
+                        input[k] = temp.get(i).get(j);
                         k++;
                     }
                 order[i] = 0;
             }
-            n *= 10;
+//            n *= 10;
             k = 0;
             m++;
+            for (Vector v : temp) {
+                v.clear();
+            }
         }
-        return number;
+        int[] result = new int[input.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = Integer.parseInt(input[i], 2);
+        }
+        return result;
     }
+
 
     /**
      * 普通计数排序
